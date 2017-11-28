@@ -30,6 +30,7 @@ namespace Library.API
                 o.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddScoped<ILibraryRepository, LibraryRepository>();
+
             services.AddMvc();
         }
 
