@@ -108,8 +108,18 @@ namespace library.api.Controllers
 
         // DELETE: api/ApiWithActions/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<ActionResult<Book>> DeleteBook(Guid authorId, Guid id)
         {
+            var book = await _context.Book
+                .FirstOrDefaultAsync(b => b.AuthorId == authorId && b.Id == id);
+
+            if (book == null) return NotFound();
+
+            _context.Book.Remove(book);
+
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
         private bool AuthorExists(Guid id)
         {
