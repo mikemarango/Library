@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using library.api.Data;
+using library.api.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace library.api.Controllers
 {
-    [Route("api/authors/{authorId}/[controller]")]
+    [Route("api/authors/{authorId}/books")]
     [ApiController]
     public class BooksController : ControllerBase
     {
@@ -64,9 +65,40 @@ namespace library.api.Controllers
 
         // POST: api/Books
         [HttpPost]
-        public void Post([FromBody] string value)
+        public async Task<ActionResult<BookDto>> PostBook(Guid authorId, [FromBody] BookCreateDto bookCreateDto)
         {
+            if (bookCreateDto == null)
+                return BadRequest();
+
+            if (!AuthorExists(authorId))
+                return NotFound();
+
+            var author = await _context.Author.FindAsync(authorId); //54ms
+
+            var book = new Book()
+            {
+                Title = bookCreateDto.Title,
+                Description = bookCreateDto.Description
+            }; //65ms
+
+            if (author != null)
+            {
+                author.Books.Add(book);
+                await _context.SaveChangesAsync();
+            } //
+
+            var bookDto = new BookDto()
+            {
+                Id = book.Id,
+                Title = book.Title,
+                Description = book.Description,
+                AuthorId = book.AuthorId
+            };
+
+            return CreatedAtAction("GetBook", new { authorId, id = bookDto.Id }, bookDto);
+           
         }
+
 
         // PUT: api/Books/5
         [HttpPut("{id}")]
@@ -79,6 +111,16 @@ namespace library.api.Controllers
         public void Delete(int id)
         {
         }
+        private bool AuthorExists(Guid id)
+        {
+            return _context.Author.Any(e => e.Id == id);
+        }
+    }
+
+    public class BookCreateDto
+    {
+        public string Title { get; set; }
+        public string Description { get; set; }
     }
 
     public class BookDto

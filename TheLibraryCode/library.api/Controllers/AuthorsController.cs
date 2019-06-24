@@ -121,7 +121,7 @@ namespace library.api.Controllers
             return author;
         }
 
-        private bool AuthorExists(Guid id)
+        public bool AuthorExists(Guid id)
         {
             return _context.Author.Any(e => e.Id == id);
         }
