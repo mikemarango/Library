@@ -69,7 +69,7 @@ namespace library.api.Controllers
                 _context.Author.Add(author);
             }
 
-            // save each element
+            // save all elements
             await _context.SaveChangesAsync();
 
             var authorDtos = new List<AuthorDto>();
