@@ -22,7 +22,7 @@ namespace library.api.Controllers
         }
         // GET: api/Books
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<BookDto>>> GetBook(Guid authorId)
+        public async Task<ActionResult<List<BookDto>>> GetBook(Guid authorId)
         {
             var books = await _context.Book
                 .Where(b => b.AuthorId == authorId)
@@ -31,13 +31,13 @@ namespace library.api.Controllers
             if (books == null)
                 return NotFound();
 
-            var bookDtos = books.Select(book => new BookDto
+            var bookDtos = books.ConvertAll(book => new BookDto
             {
                 Id = book.Id,
                 Title = book.Title,
                 Description = book.Description,
                 AuthorId = book.AuthorId
-            }).ToList();
+            });
 
             return bookDtos;
         }
